@@ -1,0 +1,28 @@
+Anima-MLX — License & Attribution
+=================================
+
+These weights are a format conversion (PyTorch → Apple MLX) of third-party models.
+They are redistributed under NON-COMMERCIAL terms. Personal and research use only.
+NOT for commercial use.
+
+1. Fine-tune weights — Anima (CircleStone Labs)
+   The Anima anime/illustration fine-tune is licensed by CircleStone Labs under a
+   Non-Commercial license. This conversion inherits those terms.
+   Source: https://huggingface.co/circlestone-labs/Anima
+
+2. Base denoiser — NVIDIA Cosmos-Predict2-2B
+   "Built on NVIDIA Cosmos." The base denoiser (CosmosTransformer3DModel) is licensed
+   under the NVIDIA Cosmos Open Model License. You must comply with its terms,
+   including its attribution requirement.
+   https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/
+
+3. Other components
+   Qwen3-0.6B text encoder (Alibaba, Qwen license) and the Qwen-Image / Wan 16-channel
+   VAE (Alibaba/Wan) retain their respective upstream licenses.
+
+4. Port code
+   The MLX port CODE (model definitions, pipeline, tools) is MIT-licensed and lives at
+   https://github.com/xocialize/anima-mlx . The MIT grant covers the code, not the weights.
+
+By downloading or using these weights you agree to the upstream Non-Commercial terms above.
+If any upstream license is more restrictive than this notice, the upstream license governs.

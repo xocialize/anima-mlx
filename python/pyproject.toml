@@ -1,0 +1,21 @@
+[project]
+name = "anima-mlx"
+version = "0.0.1"
+description = "Pure MLX port of Anima (Cosmos-Predict2-2B anime T2I; Qwen3-0.6B + llm_adapter text path) for Apple Silicon"
+requires-python = ">=3.10"
+license = { text = "LicenseRef-CircleStone-NonCommercial" }
+dependencies = [
+    "mlx>=0.30",
+    "numpy",
+    "safetensors",
+    "huggingface_hub",
+    "transformers>=4.57",   # tokenizers only (Qwen2.5 + T5-v1_1); no torch needed
+    "sentencepiece",        # T5 SentencePiece
+    "pillow",               # PNG output
+]
+
+[project.optional-dependencies]
+parity = ["torch", "diffusers>=0.35", "transformers>=4.57", "torchvision", "pillow"]
+
+[tool.setuptools.packages.find]
+include = ["anima_mlx*"]

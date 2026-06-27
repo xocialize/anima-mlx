@@ -1,0 +1,12 @@
+# build / envs / caches
+**/.venv/
+**/.build/
+**/__pycache__/
+*.pyc
+*.log
+.DS_Store
+# published weights live on HF (xocialize/anima-mlx); never commit
+**/dist/
+oracle/weights/
+# parity fixtures are regenerated via oracle/ scripts (need the upstream checkpoints)
+python/tests/goldens/

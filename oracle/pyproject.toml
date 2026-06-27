@@ -1,0 +1,14 @@
+[project]
+name = "anima-oracle"
+version = "0.0.1"
+description = "PyTorch oracle for Anima (Cosmos-Predict2-2B DiT + Qwen3-0.6B + Qwen-Image VAE) MLX port parity"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "numpy",
+    "safetensors",
+    "huggingface_hub",
+    "diffusers>=0.35",
+    "transformers>=4.57",
+    "pillow",
+]
