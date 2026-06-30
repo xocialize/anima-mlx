@@ -2,8 +2,10 @@
 
 Apple-MLX port of **[circlestone-labs/Anima](https://huggingface.co/circlestone-labs/Anima)** — an
 anime/illustration text-to-image model (NVIDIA Cosmos-Predict2-2B DiT + Qwen3-0.6B → `llm_adapter`
-conditioning + Qwen-Image/Wan 16-channel VAE). Both a **Python-MLX** reference port and a
-**Swift-MLX** engine package, parity-locked to the PyTorch original.
+conditioning + Qwen-Image/Wan 16-channel VAE). This repo holds the **Python-MLX** reference port,
+parity-locked to the PyTorch original. The **Swift-MLX** engine package lives in its own repo:
+**[`xocialize/anima-mlx-swift`](https://github.com/xocialize/anima-mlx-swift)** (`textToImage`
+`AnimaT2IPackage`), parity-locked to this Python rung.
 
 > **Non-Commercial.** The Anima weights are licensed Non-Commercial (CircleStone Labs); the base
 > denoiser is "Built on NVIDIA Cosmos" (NVIDIA Cosmos Open Model License). Personal / research use
@@ -16,10 +18,12 @@ Weights (bf16 + int4, NC-flagged): **https://huggingface.co/xocialize/anima-mlx*
 | dir | what |
 |---|---|
 | `python/` | Pure Python-MLX port (`anima_mlx/`): Cosmos DiT, llm_adapter, Qwen3 TE, Wan VAE, pipeline, tokenizer, `generate.py`. e2e parity-locked 7/7 (`tests/parity/`). |
-| `swift/` | Swift-MLX port + the engine-conformant `AnimaT2IPackage` (`MLXAnima`). All component/e2e/tokenizer/int4 gates PASS; Swift ≡ Python-MLX. See `swift/PORTING-SPEC.md`. |
 | `oracle/` | PyTorch oracles (diffusers Cosmos + adapter + Qwen3) that generate the parity goldens. |
 
-## Parity (Swift, vs Python-MLX / PT goldens)
+The Swift-MLX port + engine-conformant `AnimaT2IPackage` now lives in
+**[`xocialize/anima-mlx-swift`](https://github.com/xocialize/anima-mlx-swift)**.
+
+## Parity ([anima-mlx-swift](https://github.com/xocialize/anima-mlx-swift) vs this Python-MLX rung / PT goldens)
 
 | component | cosine | max_abs |
 |---|---|---|
@@ -41,8 +45,9 @@ Tokenizers: Qwen2.5 (raw BPE, pad 151643) + T5-v1.1 SentencePiece (trailing eos)
 **Python:** `cd python && pip install -e . && python generate.py --prompt "1girl, anime, masterpiece"`
 (loads the published weights via `AnimaPipeline.from_pretrained("xocialize/anima-mlx")`).
 
-**Swift:** `cd swift && swift run anima-cli --generate "1girl, anime, masterpiece" <weights-dir> out.png`.
-Engine integration: `MLXServeEngine.register(.of(AnimaT2IPackage.self), configuration:)`.
+**Swift:** see **[`xocialize/anima-mlx-swift`](https://github.com/xocialize/anima-mlx-swift)** —
+`swift run anima-cli --generate "1girl, anime, masterpiece" <weights-dir> out.png`; engine
+integration `MLXServeEngine.register(.of(AnimaT2IPackage.self), configuration:)`.
 
 ## Credits
 
