@@ -35,6 +35,21 @@ workflow POST to /prompt; text-path tensor dump via `comfy.sd.load_clip` +
 `encode_from_tokens_scheduled` + standalone comfy `LLMAdapter` (see session scratchpad
 `comfy_dump_textpath.py` / `comfy_gt.py`).
 
+Two parity-infrastructure repairs from the same session (goldens had been cleaned):
+- **DiT oracle config was missing `rope_scale=(1.0, 4.0, 4.0)`** (Anima = 4× spatial NTK
+  rope extrapolation). Without it the diffusers oracle diverges from ComfyUI MiniTrainDIT
+  ~1e-2 mean_rel per forward (stable across diffusers 0.35–0.39, torch 2.8/2.13, mlx
+  0.31.2/0.32.0 — NOT version drift). The MLX DiT matches COMFY exactly (max_abs 2.0e-6,
+  cos 1.000000000 — `tests/goldens/dit/out_final_comfy.npy`); with the rope_scale fix the
+  diffusers oracle matches comfy at 3.0e-5. Fixed in `anima-oracle/anima_oracle.py` CONFIG.
+  (The earlier ARCHITECTURE.md note "rope_scale=(2.0,1.0,1.0)" was the video default, wrong
+  for Anima.)
+- **VAE goldens + `wan_vae_decoder_mlx.safetensors` rebuilt** via
+  `diffusers.loaders.single_file_utils.convert_wan_vae_to_diffusers` (+ `.resample.1→.0`,
+  conv `(O,I,*K)→(O,*K,I)`, gamma `(C,1,1,1)→(C,)`) — `anima-oracle/vae_oracle.py`; decode
+  gate back at 6.9e-6. NOTE: comfy's own torch VAE decode differs from diffusers/MLX at
+  max_abs ~0.22 (stats identical; localized) — diffusers remains the VAE oracle as ported.
+
 ## STATUS UPDATE 2026-07-22 — the "failure at larger sizes" ROOT-CAUSED (3 findings)
 
 Investigated on the M5 via A/B renders (see /tmp/anima_*.png progression). Ruled OUT first:
@@ -99,7 +114,8 @@ rescale). ⇒ **DiT timestep == σ ∈ [0,1] fed directly** (the DiT golden's t=
 1. Tokenize with BOTH (comfy `AnimaTokenizer`):
    - **Qwen3**: uses the **qwen2.5 tokenizer**; pad=151643, no start/end tokens, weights forced 1.0.
    - **T5**: standard `t5_tokenizer` (32128 SP vocab), no start token.
-2. Run **Qwen3-0.6B** (causal) → take **pre-final-norm** last hidden (`qwen3_te.py`, already parity-locked).
+2. Run **Qwen3-0.6B** (causal) → take **POST-final-RMSNorm** last hidden (`qwen3_te.py`; comfy
+   `layer="last"` = llama.py `outputs[0]`, post-norm — see 2026-07-22 evening status).
 3. **llm_adapter**(source=Qwen3 hidden, target_ids=T5 ids) → ×t5xxl_weights (usually 1.0) → **pad seq to 512**
    → this is the DiT `encoder_hidden_states` (cross-attn context). (`llm_adapter.py`, parity-locked.)
 4. CFG: run cond + uncond (empty prompt) contexts; `pred = uncond + cfg*(cond-uncond)`, cfg 4–5.
