@@ -1,5 +1,29 @@
 # Anima MLX pipeline spec
 
+## STATUS UPDATE 2026-07-22 — the "failure at larger sizes" ROOT-CAUSED (3 findings)
+
+Investigated on the M5 via A/B renders (see /tmp/anima_*.png progression). Ruled OUT first:
+NAX split-K GEMM bug (no Anima GEMM has K ≥ 10240), mlx version (0.31.2 ≡ 0.32.0 pixel-identical),
+weights (published == originals A/B, stats healthy), GPU (CPU stream reproduces), dtype (fp32 == bf16 class).
+
+1. **euler was never actually working.** The June "coherent" 512² eyeball was mis-calibrated —
+   `anima-oracle/anima_bf16_gpu.png` is the same structural blob garbage the sampler produces at
+   every size. **er_sde (already implemented here) is REQUIRED** and produces real images.
+   Default flipped euler → er_sde. Phase-B was never "optional beauty parity"; it was the bug.
+2. **Empty negative prompt collapses large sizes** (1024² → confetti even under er_sde). The
+   reference workflow's quality-tag negative ("worst quality, low quality, score_1, score_2,
+   score_3, blurry, jpeg artifacts") stabilizes it: **1024² fully coherent** with er_sde + that neg.
+   The reference (anima_comparison.json) runs 896×1152, er_sde, scheduler 'simple', cfg 4–6, shift 3.
+3. **OPEN BUG: long positive prompts (~30+ tokens) wash out to near-blank** — the reference's
+   danbooru-style tag prompts are unusable. ~15-token sequences fine (the neg works). Suspect the
+   llm_adapter path (length-dependent); needs adapter-oracle goldens regenerated with LONG prompts
+   (originals re-downloaded to the circlestone HF cache; local split_files were cleaned).
+
+Comfy 'simple' vs our 'normal' schedule: both fine under er_sde at 512² (A/B'd) — not the bug.
+The Swift port (anima-mlx-swift) has the SAME two defaults to fix (euler-only sampler; its S2b
+"coherent" gate has the same calibration problem) and needs sample_er_sde ported.
+
+
 **All FOUR neural nets are MLX-ported + fp32 parity-locked**: Cosmos DiT (3.1e-5), llm_adapter (2.9e-5),
 Qwen3-0.6B TE (6.1e-4), Wan/Qwen-Image VAE (7.5e-6) — see `tests/parity/`.
 

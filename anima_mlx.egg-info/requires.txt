@@ -1,0 +1,14 @@
+mlx>=0.30
+numpy
+safetensors
+huggingface_hub
+transformers>=4.57
+sentencepiece
+pillow
+
+[parity]
+torch
+diffusers>=0.35
+transformers>=4.57
+torchvision
+pillow

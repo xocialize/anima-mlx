@@ -203,10 +203,12 @@ class AnimaPipeline:
 
     # ---- high level ---------------------------------------------------------
     def generate(self, cond_ctx, uncond_ctx, height=512, width=512, steps=30, cfg=5.0,
-                 seed=0, noise=None, sampler="euler", verbose=False) -> mx.array:
-        # sampler: "euler" (deterministic, reliable on MLX) | "er_sde" (Anima card default; coherent in the
-        # torch reference at 256² but currently fragile on MLX — the stochastic/high-order steps amplify the
-        # per-step MLX-GPU-fp32 vs torch-CPU-fp32 DiT divergence. Needs a real-ComfyUI-render oracle to finish.
+                 seed=0, noise=None, sampler="er_sde", verbose=False) -> mx.array:
+        # sampler: "er_sde" (DEFAULT — the Anima card default, and REQUIRED: euler produces
+        # structural blob garbage at every size for this model; er_sde produces real images.
+        # Root-caused 2026-07-22: the June "euler coherent at 512²" eyeball was mis-calibrated —
+        # the June render was the same blob class. er_sde is NOT fragile on MLX in practice.)
+        # | "euler" (kept for A/B only).
         Hl, Wl = height // VAE_SPATIAL, width // VAE_SPATIAL
         if noise is None:
             rng = np.random.default_rng(seed)
