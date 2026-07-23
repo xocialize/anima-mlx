@@ -53,7 +53,7 @@ def main():
     # ---- Qwen3 TE ----
     qm = Qwen3TextEncoder(); load_qwen3_te(qm, QWEN_CKPT, dtype=DT); qm.eval(); mx.eval(qm.parameters())
     out = qm(mx.array(g("qwen3", "in_ids")))
-    res.append(rep("qwen3", out, g("qwen3", "hidden_prenorm")))
+    res.append(rep("qwen3", out, g("qwen3", "hidden_postnorm")))
 
     # ---- llm_adapter ----
     am = LLMAdapter(); load_adapter_weights(am, DIT_CKPT, dtype=DT); am.eval(); mx.eval(am.parameters())

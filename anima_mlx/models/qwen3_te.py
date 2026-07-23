@@ -1,5 +1,9 @@
-"""Qwen3-0.6B as Anima's text encoder, in MLX. Causal; returns the last decoder
-layer output BEFORE the final norm (comfy layer_norm_hidden_state=False)."""
+"""Qwen3-0.6B as Anima's text encoder, in MLX. Causal; returns the last hidden
+AFTER the final RMSNorm — comfy `layer="last"` takes `outputs[0]`, which llama.py
+produces post-`self.norm(x)`; `layer_norm_hidden_state=False` only affects
+INTERMEDIATE-layer taps (`outputs[1]`), not "last". (The pre-norm tap was the
+2026-07-22 long-prompt-washout root cause: std ~25 vs comfy's ~3.8 — the
+llm_adapter is trained on the normed stream.)"""
 from __future__ import annotations
 from dataclasses import dataclass
 import mlx.core as mx
@@ -83,13 +87,14 @@ class Qwen3Layer(nn.Module):
 
 
 class Qwen3TextEncoder(nn.Module):
-    """Wraps the `model.*` namespace; returns the pre-final-norm last hidden."""
+    """Wraps the `model.*` namespace; returns the post-final-norm last hidden
+    (comfy layer="last" -> outputs[0], which is normed)."""
     def __init__(self, c: Qwen3Config = Qwen3Config()):
         super().__init__()
         self.c = c
         self.embed_tokens = nn.Embedding(c.vocab_size, c.hidden_size)
         self.layers = [Qwen3Layer(c) for _ in range(c.num_hidden_layers)]
-        self.norm = nn.RMSNorm(c.hidden_size, eps=c.rms_norm_eps)  # held but NOT applied to output
+        self.norm = nn.RMSNorm(c.hidden_size, eps=c.rms_norm_eps)
 
     def __call__(self, input_ids: mx.array) -> mx.array:
         B, S = input_ids.shape
@@ -98,7 +103,7 @@ class Qwen3TextEncoder(nn.Module):
         mask = nn.MultiHeadAttention.create_additive_causal_mask(S).astype(x.dtype)
         for layer in self.layers:
             x = layer(x, cos, sin, mask)
-        return x  # pre-final-norm (layer_norm_hidden_state=False)
+        return self.norm(x)  # comfy layer="last" is POST final norm
 
 
 def load_qwen3_te(model, ckpt_path, dtype=mx.float32):

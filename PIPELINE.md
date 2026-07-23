@@ -1,5 +1,40 @@
 # Anima MLX pipeline spec
 
+## STATUS UPDATE 2026-07-22 (evening) — LONG-PROMPT WASHOUT ROOT-CAUSED + FIXED ✅
+
+Finding #3 below (long positive prompts wash out to carpet/scribble noise) is closed. Method:
+ruled out MLX numerics first (fp32 length-sweep goldens `tests/goldens/adapter_len/` — tokenizer
+ids exact, qwen3 cos ≥0.9999996, adapter cos ≥0.9999997 at 174 tokens, per-block clean), then
+ruled out checkpoint variant (base/preview/aesthetic all carpet) and compute dtype (fp32 carpet),
+then stood up a REAL ComfyUI ground truth (torch/MPS, headless) — comfy rendered the full 49-tag
+fern prompt PERFECTLY at 512²/cfg4/er_sde/simple with the same base-v1.0 weights ⇒ our bug.
+Dumping comfy's actual text-path tensors exposed TWO shared oracle+MLX semantic errors:
+
+1. **Qwen3 TE tap was pre-final-norm; comfy uses POST-final-RMSNorm.** comfy `layer="last"`
+   takes llama.py `outputs[0]`, which is post-`self.norm(x)`; `layer_norm_hidden_state=False`
+   only affects INTERMEDIATE taps (`outputs[1]`). Pre-norm hidden has std ~25 vs comfy's ~3.8 —
+   off-distribution for the adapter, catastrophically so as prompt length grows (short prompts
+   coincidentally survived, which is why every short-prompt gate passed). Fixed in
+   `qwen3_te.py` (`return self.norm(x)`); torch oracles re-tapped (`qwen3_last`), goldens
+   regenerated (`hidden_postnorm.npy`, adapter_len post-norm).
+2. **Tokenizer skipped comfy's escape/weight parsing.** `\(`/`\)` must become literal parens
+   and `(text:w)` weight syntax must be parsed (weights forced 1.0 on the qwen stream, applied
+   as t5xxl_weights on the t5 stream). Danbooru prompts are full of escapes → id drift.
+   Fixed in `tokenizer.py` (`encode_weighted`, comfy sd1_clip transpose).
+
+After both fixes the MLX text path matches the comfy ground truth **end-to-end**: ids exact,
+post-norm hidden cos 0.9999997, padded-512 context cos 0.999997 (fern/neg/short all). Fern
+49-tag renders are comfy-class at 512² and 896×1152.
+
+⚠ The published `xocialize/anima-mlx` weights are UNAFFECTED (the norm weights were always
+exported); the fix is code-only. The Swift port needs the same two fixes (post-norm tap +
+escape parsing).
+
+Ground-truth harness (reusable): headless ComfyUI + torch-MPS in scratchpad, API-format
+workflow POST to /prompt; text-path tensor dump via `comfy.sd.load_clip` +
+`encode_from_tokens_scheduled` + standalone comfy `LLMAdapter` (see session scratchpad
+`comfy_dump_textpath.py` / `comfy_gt.py`).
+
 ## STATUS UPDATE 2026-07-22 — the "failure at larger sizes" ROOT-CAUSED (3 findings)
 
 Investigated on the M5 via A/B renders (see /tmp/anima_*.png progression). Ruled OUT first:

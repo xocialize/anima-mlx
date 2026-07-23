@@ -23,7 +23,10 @@ VAE_CKPT = os.path.join(HERE, "tests", "goldens", "vae", "wan_vae_decoder_mlx.sa
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prompt", default="1girl, anime, masterpiece, detailed background, soft lighting")
-    ap.add_argument("--neg", default="")
+    # Quality-tag negative by default: an EMPTY negative collapses large sizes
+    # (1024² → confetti) — root-caused 2026-07-22; this is the reference workflow's negative.
+    ap.add_argument("--neg", default="worst quality, low quality, score_1, score_2, "
+                                     "score_3, blurry, jpeg artifacts")
     ap.add_argument("--steps", type=int, default=30)
     ap.add_argument("--cfg", type=float, default=5.0)
     ap.add_argument("--height", type=int, default=512)

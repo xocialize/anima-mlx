@@ -107,11 +107,16 @@ class AnimaPipeline:
         return cls(dit, adapter, qwen, vae)
 
     # ---- text path ----------------------------------------------------------
-    def encode_context(self, qwen_ids, t5_ids) -> mx.array:
+    def encode_context(self, qwen_ids, t5_ids, t5_weights=None) -> mx.array:
+        """t5_weights: optional per-token prompt weights from AnimaTokenizer.encode_weighted
+        (comfy t5xxl_weights multiply; no-op at the usual all-1.0)."""
         qids = mx.array(np.asarray(qwen_ids, np.int32)[None])
         tids = mx.array(np.asarray(t5_ids, np.int32)[None])
-        src = self.qwen(qids)                              # [1, Lq, 1024] pre-final-norm
-        return self.adapter(src, tids, pad_to=PAD_TO)      # [1, 512, 1024]
+        src = self.qwen(qids)                              # [1, Lq, 1024] post-final-norm
+        tw = None
+        if t5_weights is not None and any(w != 1.0 for w in t5_weights):
+            tw = mx.array(np.asarray(t5_weights, np.float32)[None])
+        return self.adapter(src, tids, pad_to=PAD_TO, target_weights=tw)  # [1, 512, 1024]
 
     # ---- sampling -----------------------------------------------------------
     def _dit_v(self, x, sigma, ctx):
