@@ -1,8 +1,7 @@
 .venv/
+.venv312/
 dist/
-**/__pycache__/
-*.pyc
-*.log
-.DS_Store
-# parity fixtures regenerated from the oracle (large)
+*.egg-info/
+__pycache__/
 tests/goldens/
+*.log

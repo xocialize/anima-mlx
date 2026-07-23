@@ -1,0 +1,52 @@
+Anima-MLX (Python) — License & Attribution
+=========================================
+
+This repository contains the Python/MLX PORT CODE for Anima. The port code is
+MIT-licensed (see "Port code" below). The model WEIGHTS it loads are a format
+conversion (PyTorch → Apple MLX) of third-party models, redistributed under
+NON-COMMERCIAL terms. Personal and research use only. NOT for commercial use.
+
+1. Fine-tune weights — Anima (CircleStone Labs)
+   The Anima anime/illustration fine-tune is licensed by CircleStone Labs under a
+   Non-Commercial license. This conversion inherits those terms.
+   Source: https://huggingface.co/circlestone-labs/Anima
+
+2. Base denoiser — NVIDIA Cosmos-Predict2-2B
+   "Built on NVIDIA Cosmos." The base denoiser (CosmosTransformer3DModel) is licensed
+   under the NVIDIA Cosmos Open Model License. You must comply with its terms,
+   including its attribution requirement.
+   https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/
+
+3. Other components
+   Qwen3-0.6B text encoder (Alibaba, Qwen license) and the Qwen-Image / Wan 16-channel
+   VAE (Alibaba/Wan) retain their respective upstream licenses.
+
+4. Port code — MIT
+   The MLX port CODE in this repository (model definitions, pipeline, the MLXEngine
+   `AnimaT2IPackage` wrapper, CLI, and tools) is MIT-licensed:
+
+   Copyright (c) 2026 xocialize
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy of
+   this software and associated documentation files (the "Software"), to deal in the
+   Software without restriction, including without limitation the rights to use, copy,
+   modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+   and to permit persons to whom the Software is furnished to do so, subject to the
+   following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+   PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+   CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+   OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+   The MIT grant covers the code, not the weights.
+
+Weights (bf16 + int4, NC-flagged): https://huggingface.co/xocialize/anima-mlx
+
+By downloading or using the weights you agree to the upstream Non-Commercial terms above.
+If any upstream license is more restrictive than this notice, the upstream license governs.
