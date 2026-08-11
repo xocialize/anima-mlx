@@ -1,19 +1,23 @@
 Metadata-Version: 2.4
 Name: anima-mlx
-Version: 0.0.1
+Version: 0.1.0
 Summary: Pure MLX port of Anima (Cosmos-Predict2-2B anime T2I; Qwen3-0.6B + llm_adapter text path) for Apple Silicon
 License: LicenseRef-CircleStone-NonCommercial
 Requires-Python: >=3.10
+License-File: LICENSE
+Requires-Dist: fastapi<1,>=0.116
 Requires-Dist: mlx>=0.30
 Requires-Dist: numpy
 Requires-Dist: safetensors
 Requires-Dist: huggingface_hub
-Requires-Dist: transformers>=4.57
+Requires-Dist: transformers<6,>=4.57
 Requires-Dist: sentencepiece
 Requires-Dist: pillow
+Requires-Dist: uvicorn[standard]<1,>=0.35
 Provides-Extra: parity
 Requires-Dist: torch; extra == "parity"
 Requires-Dist: diffusers>=0.35; extra == "parity"
-Requires-Dist: transformers>=4.57; extra == "parity"
+Requires-Dist: transformers<6,>=4.57; extra == "parity"
 Requires-Dist: torchvision; extra == "parity"
 Requires-Dist: pillow; extra == "parity"
+Dynamic: license-file

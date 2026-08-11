@@ -1,14 +1,16 @@
+fastapi<1,>=0.116
 mlx>=0.30
 numpy
 safetensors
 huggingface_hub
-transformers>=4.57
+transformers<6,>=4.57
 sentencepiece
 pillow
+uvicorn[standard]<1,>=0.35
 
 [parity]
 torch
 diffusers>=0.35
-transformers>=4.57
+transformers<6,>=4.57
 torchvision
 pillow

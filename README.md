@@ -20,3 +20,10 @@ hard way — see PIPELINE.md "STATUS UPDATE 2026-07-22"): sampler **er_sde**
 parity to a self-written oracle alone certified the wrong computation for weeks.
 
 License: port code MIT; weights non-commercial (see LICENSE).
+
+## Local API
+
+This checkout also includes an OpenAI Images-compatible FastAPI service and an AstrBot
+integration through the separate
+[astrbot_plugin_anima_furina](https://github.com/tignioj/astrbot_plugin_anima_furina)
+project. See [DEPLOYMENT.md](DEPLOYMENT.md) for service setup, endpoints, and test commands.

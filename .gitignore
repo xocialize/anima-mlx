@@ -1,7 +1,9 @@
+.env
 .venv/
 .venv312/
 dist/
 *.egg-info/
 __pycache__/
 tests/goldens/
+outputs/
 *.log
